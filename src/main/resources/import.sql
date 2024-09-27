@@ -1,0 +1,1 @@
+INSERT INTO habit (id, name) VALUES (gen_random_uuid(), 'guitar');

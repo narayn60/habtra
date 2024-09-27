@@ -1,6 +1,8 @@
 package com.example.habtra.habit;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -14,8 +16,13 @@ public class HabitController {
         this.repository = repository;
     }
 
-    @GetMapping("/habits")
+    @GetMapping(value = "/habits")
     List<Habit> all() {
         return repository.findAll();
+    }
+
+    @PostMapping(value = "/habits")
+    Habit newHabit(@RequestBody Habit newHabit) {
+        return repository.save(newHabit);
     }
 }

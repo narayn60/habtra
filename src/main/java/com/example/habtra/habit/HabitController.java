@@ -23,6 +23,7 @@ public class HabitController {
 
     @PostMapping(value = "/habits")
     Habit newHabit(@RequestBody Habit newHabit) {
+        // TODO: Ensure we don't pass id and only generate one
         return repository.save(newHabit);
     }
 }

@@ -9,5 +9,4 @@ class HabtraApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }

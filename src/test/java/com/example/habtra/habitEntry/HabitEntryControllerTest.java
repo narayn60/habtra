@@ -1,5 +1,6 @@
-package com.example.habtra.habit;
+package com.example.habtra.habitEntry;
 
+import com.example.habtra.habit.Habit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,69 +17,64 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-@AutoConfigureJsonTesters
+@AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
-class HabitControllerTest {
+class HabitEntryControllerTest {
 
     private MockMvc mvc;
 
     @Mock
-    private HabitService habitService;
+    private HabitEntryService service;
 
     @InjectMocks
-    private HabitController habitController;
+    private HabitEntryController controller;
 
     @Autowired
-    private JacksonTester<Habit> jsonHabit;
-
-    @Autowired
-    private JacksonTester<ArrayList<Habit>> jsonHabitArray;
+    private JacksonTester<ArrayList<HabitEntry>> jsonHabitEntryArray;
 
     @BeforeEach
     void setUp() {
         JacksonTester.initFields(this, new ObjectMapper());
 
-        mvc = MockMvcBuilders.standaloneSetup(habitController)
+        mvc = MockMvcBuilders.standaloneSetup(controller)
                 .build();
     }
 
     @Test
-    public void testHandleNewHabitRequest() throws Exception {
+    public void testGetHabitEntries() throws Exception {
         Habit habit = new Habit("guitar", Collections.emptySet());
 
-        MockHttpServletResponse response =
-                mvc.perform(
-                        post("/habits/").contentType(MediaType.APPLICATION_JSON)
-                                .content(jsonHabit.write(habit).getJson()
-                                )).andReturn().getResponse();
+        // TODO: Figure out something better
+        Timestamp startTime = new Timestamp(System.currentTimeMillis());
 
-        // then
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
-    }
+        ArrayList<HabitEntry> habitEntries = new ArrayList<>();
+        habitEntries.add(new HabitEntry(habit, startTime, null));
 
-    @Test
-    public void testHandleAllRequest() throws Exception {
-        ArrayList<Habit> habits = new ArrayList<>();
-        habits.add(new Habit("Guitar", Collections.emptySet()));
-
-        // given
-        given(habitService.getAllHabits()).willReturn(habits);
+        given(service.getAll()).willReturn(habitEntries);
 
         MockHttpServletResponse response = mvc.perform(
-                get("/habits").accept(MediaType.APPLICATION_JSON)).andReturn().getResponse();
+                get("/habitEntries").accept(MediaType.APPLICATION_JSON)).andReturn().getResponse();
 
         // then
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.getContentAsString()).isEqualTo(
-                jsonHabitArray.write(habits).getJson()
+                jsonHabitEntryArray.write(habitEntries).getJson()
         );
+    }
+
+    @Test
+    void createHabitEntry() {
+    }
+
+    @Test
+    void putHabitEntry() {
     }
 }

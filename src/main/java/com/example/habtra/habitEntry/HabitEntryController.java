@@ -1,35 +1,44 @@
 package com.example.habtra.habitEntry;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 public class HabitEntryController {
-    private final HabitEntryRepository repository;
+    private final HabitEntryService service;
 
-    public HabitEntryController(HabitEntryRepository habitEntryRepository) {
-        this.repository = habitEntryRepository;
+    public HabitEntryController(HabitEntryService service) {
+        this.service = service;
+    }
+
+    @GetMapping(value = "/username")
+    public String currentUserName(Principal principal) {
+        return principal.getName();
     }
 
     @GetMapping(value = "/habitEntries")
     List<HabitEntry> getHabitEntries() {
-        return repository.findAll();
+        return service.getAll();
     }
 
     @PostMapping(value = "/habitEntries")
-    HabitEntry createHabitEntry(@RequestBody HabitEntry habitEntry) {
-        return repository.save(habitEntry);
+    public ResponseEntity<HabitEntry> createHabitEntry(@RequestBody HabitEntry habitEntry) {
+        HabitEntry addedHabitEntry = service.add(habitEntry);
+        return new ResponseEntity<>(addedHabitEntry, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/habitEntries/{id}")
     HabitEntry putHabitEntry(@RequestBody HabitEntry newHabitEntry, @PathVariable UUID id) {
-        return repository.findById(id)
+        return service.get(id)
                 .map(habitEntry -> {
                     habitEntry.setEndTime(newHabitEntry.getEndTime());
-                    return repository.save(habitEntry);
+                    return service.add(habitEntry);
                 })
-                .orElseGet(() -> repository.save(newHabitEntry));
+                .orElseGet(() -> service.add(newHabitEntry));
     }
 }

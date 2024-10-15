@@ -1,29 +1,30 @@
 package com.example.habtra.habit;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/habits")
 public class HabitController {
 
-    private final HabitRepository repository;
+    private final HabitService habitService;
 
-    HabitController(HabitRepository repository) {
-        this.repository = repository;
+    HabitController(HabitService habitService) {
+        this.habitService = habitService;
     }
 
-    @GetMapping(value = "/habits")
+    @GetMapping
     List<Habit> all() {
-        return repository.findAll();
+        return habitService.getAllHabits();
     }
 
-    @PostMapping(value = "/habits")
-    Habit newHabit(@RequestBody Habit newHabit) {
+    @PostMapping
+    public ResponseEntity<Habit> newHabit(@RequestBody Habit newHabit) {
         // TODO: Ensure we don't pass id and only generate one
-        return repository.save(newHabit);
+        Habit addedHabit = habitService.add(newHabit);
+        return new ResponseEntity<>(addedHabit, HttpStatus.CREATED);
     }
 }

@@ -2,7 +2,9 @@ package com.example.habtra.habit;
 
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class HabitService {
@@ -17,7 +19,8 @@ public class HabitService {
         return repository.save(newHabit);
     }
 
-    public List<Habit> getAllHabits() {
-        return repository.findAll();
+    public List<Habit> getAllHabits(UUID userId) {
+        return repository.findAllByUserId(userId).orElse(new ArrayList<>());
     }
+
 }

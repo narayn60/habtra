@@ -1,6 +1,9 @@
 package com.example.habtra.habitEntry;
 
 import com.example.habtra.habit.Habit;
+import com.example.habtra.user.User;
+import com.example.habtra.user.UserRepository;
+import com.example.habtra.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,12 +31,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = {UserService.class, UserRepository.class})
 class HabitEntryControllerTest {
 
     private MockMvc mvc;
 
     @Mock
     private HabitEntryService service;
+
+    @Autowired
+    private UserService userService;
 
     @InjectMocks
     private HabitEntryController controller;
@@ -50,7 +58,9 @@ class HabitEntryControllerTest {
 
     @Test
     public void testGetHabitEntries() throws Exception {
-        Habit habit = new Habit("guitar", Collections.emptySet());
+        User user = userService.create(new User("user", "password"));
+
+        Habit habit = new Habit("guitar", Collections.emptySet(), user);
 
         // TODO: Figure out something better
         Timestamp startTime = new Timestamp(System.currentTimeMillis());

@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity
-@Table(name = "habit_entry")
+@Table(name = "habit_entries")
 public class HabitEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

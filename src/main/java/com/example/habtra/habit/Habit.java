@@ -1,13 +1,19 @@
 package com.example.habtra.habit;
 
 import com.example.habtra.habitEntry.HabitEntry;
+import com.example.habtra.user.User;
 import jakarta.persistence.*;
 
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@Table(name = "habits")
 public class Habit {
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,9 +28,10 @@ public class Habit {
 
     public Habit() {}
 
-    public Habit(String name, Set<HabitEntry> entries) {
+    public Habit(String name, Set<HabitEntry> entries, User user) {
         this.name = name;
         this.entries = entries;
+        this.user = user;
     }
 
     public UUID getId() {
@@ -34,6 +41,15 @@ public class Habit {
     public void setId(UUID id) {
         this.id = id;
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
 
     public Set<HabitEntry> getEntries() {
         return entries;

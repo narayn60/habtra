@@ -1,10 +1,13 @@
 package com.example.habtra.habit;
 
+import com.example.habtra.user.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/habits")
@@ -17,8 +20,9 @@ public class HabitController {
     }
 
     @GetMapping
-    List<Habit> all() {
-        return habitService.getAllHabits();
+    List<Habit> all(@AuthenticationPrincipal CustomUserDetails user) {
+        UUID id = user.getId();
+        return habitService.getAllHabits(id);
     }
 
     @PostMapping

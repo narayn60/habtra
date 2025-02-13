@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,10 +15,6 @@ public class HabitEntryController {
         this.service = service;
     }
 
-    @GetMapping(value = "/username")
-    public String currentUserName(Principal principal) {
-        return principal.getName();
-    }
 
     @GetMapping(value = "/habitEntries")
     List<HabitEntry> getHabitEntries() {

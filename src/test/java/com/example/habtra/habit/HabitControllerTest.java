@@ -62,7 +62,7 @@ class HabitControllerTest {
 
     @Test
     public void testHandleNewHabitRequest() throws Exception {
-        User user = userService.create(new User("user", "password"));
+        User user = userService.create(new User("user", "password", "user@email.com"));
 
         Habit habit = new Habit("guitar", Collections.emptySet(), user);
 
@@ -78,7 +78,7 @@ class HabitControllerTest {
 
     @Test
     public void testHandleAllRequest() throws Exception {
-        User user = userService.create(new User("user", "password"));
+        User user = userService.create(new User("user", "password", "user@email.com"));
 
         CustomUserDetails userDetails = new CustomUserDetails("user", "password", user.getId(), Collections.emptyList());
         ArrayList<Habit> habits = new ArrayList<>();

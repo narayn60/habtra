@@ -58,7 +58,7 @@ class HabitEntryControllerTest {
 
     @Test
     public void testGetHabitEntries() throws Exception {
-        User user = userService.create(new User("user", "password"));
+        User user = userService.create(new User("user", "password", "user@example.com"));
 
         Habit habit = new Habit("guitar", Collections.emptySet(), user);
 

@@ -2,6 +2,8 @@ package com.example.habtra.user;
 
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service("userService")
 public class UserService {
 
@@ -17,5 +19,9 @@ public class UserService {
 
     public User create(User user) {
         return repository.save(user);
+    }
+
+    public User getById(UUID id) {
+        return repository.findById(id).orElse(null);
     }
 }

@@ -2,6 +2,7 @@ package com.example.habtra.habit;
 
 import com.example.habtra.habitEntry.HabitEntry;
 import com.example.habtra.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.util.Set;
@@ -13,6 +14,7 @@ public class Habit {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User user;
 
     @Id

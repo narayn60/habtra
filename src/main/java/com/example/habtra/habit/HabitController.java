@@ -31,6 +31,11 @@ public class HabitController {
         return habitService.getAllHabits(id);
     }
 
+    @GetMapping(value = "/{id}")
+    public Habit get(@PathVariable UUID id) {
+        return this.habitService.get(id);
+    }
+
     @PostMapping
     public ResponseEntity<Habit> newHabit(@AuthenticationPrincipal CustomUserDetails user, @RequestBody PostDto postDto) throws ParseException {
         // TODO: Ensure we don't pass id and only generate one
@@ -39,9 +44,10 @@ public class HabitController {
         return new ResponseEntity<>(addedHabit, HttpStatus.CREATED);
     }
 
+
     private Habit toEntity(PostDto postDto, UUID userId) throws ParseException {
         // TODO: Move this and maybe move to class
         User user = this.userService.getById(userId);
-        return new Habit(postDto.getHabit(), Collections.emptySet(), user);
+        return new Habit(postDto.habit(), Collections.emptySet(), user);
     }
 }

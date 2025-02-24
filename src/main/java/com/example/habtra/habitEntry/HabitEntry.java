@@ -2,6 +2,9 @@ package com.example.habtra.habitEntry;
 
 import com.example.habtra.habit.Habit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -9,18 +12,22 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "habit_entries")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class HabitEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @ManyToOne(optional = false)
     @JoinColumn(name = "habit_id", updatable = false)
     @JsonBackReference
+    @JsonProperty("test")
+    @ManyToOne(optional = false)
     private Habit habit;
+
     @Column(name = "start_time", nullable = false)
     private Timestamp startTime;
+
     @Column(name = "end_time")
     private Timestamp endTime;
 
@@ -30,8 +37,8 @@ public class HabitEntry {
         this.endTime = endTime;
     }
 
-    public UUID getHabit() {
-        return habit.getId();
+    public Habit getHabit() {
+        return habit;
     }
 
     public HabitEntry() {}

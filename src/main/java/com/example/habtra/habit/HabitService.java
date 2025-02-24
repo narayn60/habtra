@@ -15,6 +15,10 @@ public class HabitService {
         this.repository = repository;
     }
 
+    public Habit get(UUID habitId) {
+        return this.repository.findById(habitId);
+    }
+
     public Habit add(Habit newHabit) {
         return repository.save(newHabit);
     }

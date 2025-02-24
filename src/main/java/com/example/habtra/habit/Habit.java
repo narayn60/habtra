@@ -2,7 +2,10 @@ package com.example.habtra.habit;
 
 import com.example.habtra.habitEntry.HabitEntry;
 import com.example.habtra.user.User;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
 import java.util.Set;
@@ -10,6 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "habits")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Habit {
 
     @ManyToOne
@@ -26,6 +30,7 @@ public class Habit {
     private String name;
 
     @OneToMany(mappedBy="habit")
+    @JsonManagedReference
     private Set<HabitEntry> entries;
 
     public Habit() {}

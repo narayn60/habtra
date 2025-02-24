@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface HabitRepository extends JpaRepository<Habit, Long> {
     Optional<List<Habit>> findAllByUserId(UUID userId);
+
+    Habit findById(UUID habitId);
 }

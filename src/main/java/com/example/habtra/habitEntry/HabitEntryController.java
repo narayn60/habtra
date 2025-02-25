@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -32,26 +31,27 @@ public class HabitEntryController {
 
     @GetMapping(value = "/{id}")
     public HabitEntryDto getHabitEntry(@PathVariable UUID id) {
-        Optional<HabitEntry> habitEntry = service.get(id);
-        return habitEntry.map(HabitEntryDto::fromEntity).orElse(null);
+        // TODO: Catch case where UUID is not valid
+        HabitEntry habitEntry = service.getById(id);
+        return HabitEntryDto.fromEntity(habitEntry);
     }
 
     @PostMapping()
     public ResponseEntity<HabitEntry> createHabitEntry(@RequestBody PostDto postDto) {
         HabitEntry entry = toEntity(postDto);
-        HabitEntry addedHabitEntry = service.add(entry);
+        HabitEntry addedHabitEntry = service.create(entry);
         return new ResponseEntity<>(addedHabitEntry, HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/habitEntries/{id}")
-    public HabitEntry putHabitEntry(@RequestBody HabitEntry newHabitEntry, @PathVariable UUID id) {
-        return service.get(id)
-                .map(habitEntry -> {
-                    habitEntry.setEndTime(newHabitEntry.getEndTime());
-                    return service.add(habitEntry);
-                })
-                .orElseGet(() -> service.add(newHabitEntry));
-    }
+//    @PutMapping(value = "/habitEntries/{id}")
+//    public HabitEntry putHabitEntry(@RequestBody HabitEntry newHabitEntry, @PathVariable UUID id) {
+//        return service.get(id)
+//                .map(habitEntry -> {
+//                    habitEntry.setEndTime(newHabitEntry.getEndTime());
+//                    return service.create(habitEntry);
+//                })
+//                .orElseGet(() -> service.create(newHabitEntry));
+//    }
 
     private HabitEntry toEntity(PostDto postDto) {
         // TODO: Move this and maybe move to class

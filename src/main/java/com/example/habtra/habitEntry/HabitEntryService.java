@@ -3,7 +3,6 @@ package com.example.habtra.habitEntry;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -15,7 +14,7 @@ public class HabitEntryService {
         this.repository = repository;
     }
 
-    public HabitEntry add(HabitEntry habitEntry) {
+    public HabitEntry create(HabitEntry habitEntry) {
         return repository.save(habitEntry);
     }
 
@@ -23,7 +22,9 @@ public class HabitEntryService {
         return repository.findAll();
     }
 
-    public Optional<HabitEntry> get(UUID id) {
-        return repository.findById(id);
+    public HabitEntry getById(UUID id) {
+        return repository.findById(id).orElseThrow(
+                () -> new RuntimeException("HabitEntry not found")
+        );
     }
 }

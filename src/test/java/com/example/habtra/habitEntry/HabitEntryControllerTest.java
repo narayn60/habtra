@@ -1,91 +1,69 @@
 package com.example.habtra.habitEntry;
 
 import com.example.habtra.habit.Habit;
-import com.example.habtra.user.User;
-import com.example.habtra.user.UserRepository;
-import com.example.habtra.user.UserService;
+import com.example.habtra.habit.HabitService;
+import com.example.habtra.habitEntry.dtos.HabitEntryDto;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.json.JacksonTester;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.MvcResult;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
-import static org.mockito.BDDMockito.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest(classes = {UserService.class, UserRepository.class})
+@WebMvcTest(HabitEntryController.class)
 class HabitEntryControllerTest {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
-    private MockMvc mvc;
-
-    @Mock
-    private HabitEntryService service;
-
+    private MockMvc mockMvc;
     @MockBean
-    private UserService userService;
-
-    @InjectMocks
-    private HabitEntryController controller;
-
-//    @Autowired
-//    private JacksonTester<ArrayList<HabitEntry>> jsonHabitEntryArray;
-
-    @BeforeEach
-    void setUp() {
-        JacksonTester.initFields(this, new ObjectMapper());
-
-        mvc = MockMvcBuilders.standaloneSetup(controller)
-                .build();
-    }
-
-    @Test
-    public void testGetHabitEntries() throws Exception {
-        User user = userService.create(new User("user", "password", "user@example.com"));
-
-        Habit habit = new Habit("guitar", Collections.emptySet(), user);
-
-        // TODO: Figure out something better
-        Timestamp startTime = new Timestamp(System.currentTimeMillis());
-
-        ArrayList<HabitEntry> habitEntries = new ArrayList<>();
-        habitEntries.add(new HabitEntry(habit, startTime, null));
-
-        given(service.getAll()).willReturn(habitEntries);
-
-        MockHttpServletResponse response = mvc.perform(
-                get("/habitEntries").accept(MediaType.APPLICATION_JSON)).andDo(print()).andReturn().getResponse();
-
-        // then
-//        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-//        assertThat(response.getContentAsString()).isEqualTo(
-//                jsonHabitEntryArray.write(habitEntries).getJson()
-//        );
-    }
+    private HabitEntryService service;
+    @MockBean
+    private HabitService habitService;
 
     @Test
     void createHabitEntry() {
     }
 
     @Test
-    void putHabitEntry() {
+    @WithMockUser
+    void getHabitEntries() throws Exception {
+        Habit habit = new Habit("test_habit", null, null);
+        HabitEntry habitEntry = new HabitEntry();
+        UUID id = UUID.randomUUID();
+        habitEntry.setId(id);
+        habitEntry.setHabit(habit);
+
+
+        when(service.getAll()).thenReturn(Collections.singletonList(habitEntry));
+        MvcResult result = this.mockMvc.perform(get("/habitEntries"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String json = result.getResponse().getContentAsString();
+        List<HabitEntryDto> entries = objectMapper.readValue(json, new TypeReference<>() {
+        });
+
+        assertNotNull(entries);
+        assertEquals(1, entries.size());
+
+        assertEquals(id, entries.getFirst().id());
+    }
+
+    @Test
+    void getHabitEntry() {
     }
 }

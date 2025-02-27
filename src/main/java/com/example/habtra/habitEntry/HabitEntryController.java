@@ -5,7 +5,6 @@ import com.example.habtra.habit.HabitService;
 import com.example.habtra.habitEntry.dtos.HabitEntryDto;
 import com.example.habtra.habitEntry.dtos.PostDto;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,10 +36,10 @@ public class HabitEntryController {
     }
 
     @PostMapping()
-    public ResponseEntity<HabitEntry> createHabitEntry(@RequestBody PostDto postDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public HabitEntry createHabitEntry(@RequestBody PostDto postDto) {
         HabitEntry entry = toEntity(postDto);
-        HabitEntry addedHabitEntry = service.create(entry);
-        return new ResponseEntity<>(addedHabitEntry, HttpStatus.CREATED);
+        return service.create(entry);
     }
 
 //    @PutMapping(value = "/habitEntries/{id}")
@@ -54,9 +53,7 @@ public class HabitEntryController {
 //    }
 
     private HabitEntry toEntity(PostDto postDto) {
-        // TODO: Move this and maybe move to class
         Habit habit = this.habitService.get(postDto.habitId());
-
-        return new HabitEntry(habit, postDto.startTime(), postDto.endTime());
+        return PostDto.toEntity(postDto, habit);
     }
 }

@@ -3,6 +3,7 @@ package com.example.habtra.habitEntry;
 import com.example.habtra.habit.Habit;
 import com.example.habtra.habit.HabitService;
 import com.example.habtra.habitEntry.dtos.HabitEntryDto;
+import com.example.habtra.types.Enums;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -41,8 +42,8 @@ class HabitEntryControllerTest {
     @Test
     @WithMockUser
     void getHabitEntries() throws Exception {
-        Habit habit = new Habit("test_habit", null, null);
-        HabitEntry habitEntry = new HabitEntry();
+        Habit habit = new Habit("test_habit", null, null, Enums.FrequencyType.Daily, 1);
+        HabitEntry habitEntry = new HabitEntryBuilder().createHabitEntry();
         UUID id = UUID.randomUUID();
         habitEntry.setId(id);
         habitEntry.setHabit(habit);

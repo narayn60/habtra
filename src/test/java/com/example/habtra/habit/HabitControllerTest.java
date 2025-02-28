@@ -1,5 +1,6 @@
 package com.example.habtra.habit;
 
+import com.example.habtra.types.Enums;
 import com.example.habtra.user.CustomUserDetails;
 import com.example.habtra.user.User;
 import com.example.habtra.user.UserRepository;
@@ -64,7 +65,7 @@ class HabitControllerTest {
     public void testHandleNewHabitRequest() throws Exception {
         User user = userService.create(new User("user", "password", "user@email.com"));
 
-        Habit habit = new Habit("guitar", Collections.emptySet(), user);
+        Habit habit = new Habit("guitar", Collections.emptySet(), user, Enums.FrequencyType.Daily, 1);
 
         MockHttpServletResponse response =
                 mvc.perform(
@@ -82,7 +83,7 @@ class HabitControllerTest {
 
         CustomUserDetails userDetails = new CustomUserDetails("user", "password", user.getId(), Collections.emptyList());
         ArrayList<Habit> habits = new ArrayList<>();
-        habits.add(new Habit("Guitar", Collections.emptySet(), user));
+        habits.add(new Habit("Guitar", Collections.emptySet(), user, Enums.FrequencyType.Daily, 1));
 
         // given
         given(habitService.getAllHabits(user.getId())).willReturn(habits);

@@ -31,7 +31,7 @@ class HabitEntryServiceTest {
         UUID id = UUID.randomUUID();
 
         // Given
-        HabitEntry habitEntry = new HabitEntry();
+        HabitEntry habitEntry = new HabitEntryBuilder().createHabitEntry();
         habitEntry.setId(id);
         habitEntry.setStartTime(startTime);
         habitEntry.setEndTime(endTime);
@@ -64,7 +64,7 @@ class HabitEntryServiceTest {
         Timestamp endTime = new Timestamp(System.currentTimeMillis() + 6000);
 
         // Given
-        HabitEntry habitEntry = new HabitEntry();
+        HabitEntry habitEntry = new HabitEntryBuilder().createHabitEntry();
         habitEntry.setStartTime(startTime);
         habitEntry.setEndTime(endTime);
         when(repository.save(any(HabitEntry.class))).thenReturn(habitEntry);
@@ -91,7 +91,7 @@ class HabitEntryServiceTest {
         List<HabitEntry> habitEntries = new ArrayList<HabitEntry>();
 
         for (int i = 0; i < 2; i++) {
-            HabitEntry habitEntry = new HabitEntry();
+            HabitEntry habitEntry = new HabitEntryBuilder().createHabitEntry();
             habitEntry.setId(ids.get(i));
             habitEntry.setStartTime(startTime);
             habitEntry.setEndTime(endTime);

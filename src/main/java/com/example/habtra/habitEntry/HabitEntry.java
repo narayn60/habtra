@@ -31,10 +31,15 @@ public class HabitEntry {
     @Column(name = "end_time")
     private Timestamp endTime;
 
-    public HabitEntry(Habit habit, Timestamp startTime, Timestamp endTime) {
+
+    @Column(name = "note")
+    private String note;
+
+    public HabitEntry(Habit habit, Timestamp startTime, Timestamp endTime, String note) {
         this.habit = habit;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.note = note;
     }
 
     public Habit getHabit() {
@@ -70,4 +75,8 @@ public class HabitEntry {
     public void setId(UUID id) {
         this.id = id;
     }
+
+    public String getNote() { return note; }
+
+    public void setNote(String note) { this.note = note; }
 }

@@ -31,7 +31,6 @@ public class HabitEntry {
     @Column(name = "end_time")
     private Timestamp endTime;
 
-
     @Column(name = "note")
     private String note;
 

@@ -21,7 +21,6 @@ public class HabitEntryController {
         this.habitService = habitService;
     }
 
-
     @GetMapping()
     public List<HabitEntryDto> getHabitEntries() {
         List<HabitEntry> habitEntries = service.getAll();

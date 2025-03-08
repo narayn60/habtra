@@ -1,100 +1,90 @@
 package com.example.habtra.habit;
 
+import com.example.habtra.habit.dtos.HabitDto;
+import com.example.habtra.habit.dtos.PostDto;
 import com.example.habtra.types.Enums;
 import com.example.habtra.user.CustomUserDetails;
 import com.example.habtra.user.User;
-import com.example.habtra.user.UserRepository;
+import com.example.habtra.user.UserDetailsServiceImpl;
 import com.example.habtra.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.json.JacksonTester;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-@AutoConfigureJsonTesters
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest(classes = {UserService.class, UserRepository.class})
+@WebMvcTest(HabitController.class)
 class HabitControllerTest {
 
+    @Autowired
     private MockMvc mvc;
 
-    @Mock
+    @MockBean
     private HabitService habitService;
 
-    @Autowired
+    @MockBean
     private UserService userService;
 
-    @InjectMocks
-    private HabitController habitController;
+    @MockBean
+    private UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    private JacksonTester<Habit> jsonHabit;
-
-    @Autowired
-    private JacksonTester<ArrayList<Habit>> jsonHabitArray;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private CustomUserDetails customUserDetails;
+    private User user;
 
     @BeforeEach
     void setUp() {
-        JacksonTester.initFields(this, new ObjectMapper());
-
-        mvc = MockMvcBuilders.standaloneSetup(habitController)
-                .build();
+        UUID uuid = UUID.randomUUID();
+        this.customUserDetails = new CustomUserDetails("user", "password", uuid,  Collections.emptyList());
+        this.user = new User("username", "password", "user@email.com");
     }
 
+
     @Test
+    @WithMockUser(username = "user", password = "password", roles = "USER")
     public void testHandleNewHabitRequest() throws Exception {
-        User user = userService.create(new User("user", "password", "user@email.com"));
+        PostDto habitDto = new PostDto("guitar", Enums.FrequencyType.Daily.toString(), 60);
+        HabitController controller = new HabitController(this.habitService, this.userService);
 
-        Habit habit = new Habit("guitar", Collections.emptySet(), user, Enums.FrequencyType.Daily, 1);
+        when(userService.getById(any()))
+                .thenReturn(this.user);
 
-        MockHttpServletResponse response =
-                mvc.perform(
-                        post("/habits/").contentType(MediaType.APPLICATION_JSON)
-                                .content(jsonHabit.write(habit).getJson()
-                                )).andReturn().getResponse();
+        when(habitService.add(any()))
+                .thenReturn(new Habit("guitar", Collections.emptySet(), this.user, Enums.FrequencyType.Daily, 10 ));
 
-        // then
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
+        HabitDto habitDto1 = controller.newHabit(this.customUserDetails, habitDto);
+        Assertions.assertNotNull(habitDto1);
+        Assertions.assertEquals("guitar", habitDto1.name());;
+
+        // TODO: Assert mocks called
     }
 
     @Test
     public void testHandleAllRequest() throws Exception {
-        User user = userService.create(new User("user", "password", "user@email.com"));
-
-        CustomUserDetails userDetails = new CustomUserDetails("user", "password", user.getId(), Collections.emptyList());
-        ArrayList<Habit> habits = new ArrayList<>();
-        habits.add(new Habit("Guitar", Collections.emptySet(), user, Enums.FrequencyType.Daily, 1));
-
-        // given
-        given(habitService.getAllHabits(user.getId())).willReturn(habits);
-
-        MockHttpServletResponse response = mvc.perform(
-                get("/habits").with(user(userDetails)).accept(MediaType.APPLICATION_JSON)).andReturn().getResponse();
-
-        // then
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(
-                jsonHabitArray.write(habits).getJson()
+        List<Habit> habits = Arrays.asList(
+                new Habit("guitar", Collections.emptySet(), this.user, Enums.FrequencyType.Daily, 10),
+                new Habit("gym", Collections.emptySet(), this.user, Enums.FrequencyType.Daily, 10)
         );
+
+        when(habitService.getAllHabits(any()))
+                .thenReturn(habits);
+
+        HabitController controller = new HabitController(this.habitService, this.userService);
+
+        List<HabitDto> habitDtos = controller.all(this.customUserDetails);
+        Assertions.assertEquals(2, habitDtos.size());
+        Assertions.assertArrayEquals(new String[]{"guitar", "gym"}, habitDtos.stream().map(HabitDto::name).toArray());;
     }
 }

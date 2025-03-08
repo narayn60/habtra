@@ -27,10 +27,6 @@ public class User {
     @ColumnDefault("true")
     private Boolean enabled;
 
-    public User(String email) {
-        this.email = email;
-    }
-
     public User(String username, String password, String email) {
         this.username = username;
         this.password = password;

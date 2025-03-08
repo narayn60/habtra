@@ -28,7 +28,9 @@ public class HabitController {
     @GetMapping
     List<HabitDto> all(@AuthenticationPrincipal CustomUserDetails user) {
         UUID id = user.getId();
-        return habitService.getAllHabits(id).stream().map(HabitDto::fromEntity).toList();
+        return habitService.getAllHabits(id).stream()
+                .map(HabitDto::fromEntity)
+                .toList();
     }
 
     @GetMapping(value = "/{id}")

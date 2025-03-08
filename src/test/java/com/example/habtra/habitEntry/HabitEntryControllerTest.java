@@ -27,13 +27,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(HabitEntryController.class)
 class HabitEntryControllerTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private MockMvc mockMvc;
+
     @MockBean
     private HabitEntryService service;
+
     @MockBean
     private HabitService habitService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     void createHabitEntry() {

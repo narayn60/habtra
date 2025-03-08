@@ -7,7 +7,11 @@ import com.example.habtra.user.User;
 import java.security.Timestamp;
 import java.util.Collections;
 
-public record PostDto(String habit, String frequency, int target) {
+public record PostDto(
+        String habit,
+        String frequency,
+        int target
+) {
     public static Habit toEntity(PostDto postDto, User user) {
         return new Habit(
                 postDto.habit(),

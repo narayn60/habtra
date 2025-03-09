@@ -1,16 +1,14 @@
 package com.example.habtra.habitEntry;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -21,8 +19,12 @@ class HabitEntryServiceTest {
     @Mock
     private HabitEntryRepository repository;
 
-    @InjectMocks
     private HabitEntryService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new HabitEntryService(repository);
+    }
 
     @Test
     public void testGetById() {
@@ -30,15 +32,16 @@ class HabitEntryServiceTest {
         Timestamp endTime = new Timestamp(System.currentTimeMillis() + 6000);
         UUID id = UUID.randomUUID();
 
-        // Given
         HabitEntry habitEntry = new HabitEntryBuilder().createHabitEntry();
         habitEntry.setId(id);
         habitEntry.setStartTime(startTime);
         habitEntry.setEndTime(endTime);
+
+        // Given
         when(repository.findById(id)).thenReturn(Optional.of(habitEntry));
 
         // When
-        HabitEntry foundHabitEntry = service.getById(id);
+        HabitEntry foundHabitEntry = this.service.getById(id);
 
         // Then
         assertNotNull(foundHabitEntry);
@@ -54,59 +57,56 @@ class HabitEntryServiceTest {
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         // When / Then
-        assertThrows(RuntimeException.class, () -> service.getById(id));
+        assertThrows(RuntimeException.class, () -> this.service.getById(id));
         verify(repository, times(1)).findById(id);
     }
 
     @Test
     public void testCreate() {
-        Timestamp startTime = new Timestamp(System.currentTimeMillis());
-        Timestamp endTime = new Timestamp(System.currentTimeMillis() + 6000);
-
         // Given
-        HabitEntry habitEntry = new HabitEntryBuilder().createHabitEntry();
-        habitEntry.setStartTime(startTime);
-        habitEntry.setEndTime(endTime);
+        HabitEntry habitEntry = createHabitEntry(UUID.randomUUID());
         when(repository.save(any(HabitEntry.class))).thenReturn(habitEntry);
 
         // When
-        HabitEntry savedHabitEntry = service.create(habitEntry);
+        HabitEntry savedHabitEntry = this.service.create(habitEntry);
 
         // Then
         assertNotNull(savedHabitEntry);
-        assertEquals(startTime, savedHabitEntry.getStartTime());
+        assertEquals(habitEntry.getStartTime(), savedHabitEntry.getStartTime());
         verify(repository, times(1)).save(habitEntry);
     }
 
     @Test
     public void testGetAll() {
-        Timestamp startTime = new Timestamp(System.currentTimeMillis());
-        Timestamp endTime = new Timestamp(System.currentTimeMillis() + 6000);
-        List<UUID> ids = new ArrayList<UUID>() {{
-            add(UUID.randomUUID());
-            add(UUID.randomUUID());
-        }};
+        UUID[] ids = new UUID[]{UUID.randomUUID(), UUID.randomUUID()};
+        UUID userId = UUID.randomUUID();
 
         // Given
-        List<HabitEntry> habitEntries = new ArrayList<HabitEntry>();
+        List<HabitEntry> habitEntries = Arrays.stream(ids)
+                .map(HabitEntryServiceTest::createHabitEntry)
+                .toList();
 
-        for (int i = 0; i < 2; i++) {
-            HabitEntry habitEntry = new HabitEntryBuilder().createHabitEntry();
-            habitEntry.setId(ids.get(i));
-            habitEntry.setStartTime(startTime);
-            habitEntry.setEndTime(endTime);
-            habitEntries.add(habitEntry);
-        }
-
-        when(repository.findAll()).thenReturn(habitEntries);
+        when(this.repository.findAllHabitEntriesByUserId(eq(userId)))
+                .thenReturn(habitEntries);
 
         // When
-        List<HabitEntry> foundEntries = service.getAll();
+        List<HabitEntry> foundEntries = this.service.getAll(userId);
 
         // Then
         assertNotNull(foundEntries);
-        assertEquals(ids.get(0), foundEntries.get(0).getId());
+        assertEquals(Set.of(ids), foundEntries.stream().map(HabitEntry::getId).collect(Collectors.toSet()));
         assertEquals(2, foundEntries.size());
-        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).findAllHabitEntriesByUserId(eq(userId));
+    }
+
+    public static HabitEntry createHabitEntry(UUID id) {
+        Timestamp startTime = new Timestamp(System.currentTimeMillis());
+        Timestamp endTime = new Timestamp(System.currentTimeMillis() + 6000);
+
+        HabitEntry habitEntry = new HabitEntryBuilder().createHabitEntry();
+        habitEntry.setId(id);
+        habitEntry.setStartTime(startTime);
+        habitEntry.setEndTime(endTime);
+        return habitEntry;
     }
 }

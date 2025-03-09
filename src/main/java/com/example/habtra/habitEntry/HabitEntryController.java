@@ -4,7 +4,9 @@ import com.example.habtra.habit.Habit;
 import com.example.habtra.habit.HabitService;
 import com.example.habtra.habitEntry.dtos.HabitEntryDto;
 import com.example.habtra.habitEntry.dtos.PostDto;
+import com.example.habtra.user.CustomUserDetails;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +24,11 @@ public class HabitEntryController {
     }
 
     @GetMapping()
-    public List<HabitEntryDto> getHabitEntries() {
-        List<HabitEntry> habitEntries = service.getAll();
+    public List<HabitEntryDto> getHabitEntries(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        UUID userId = user.getId();
+        List<HabitEntry> habitEntries = service.getAll(userId);
         return habitEntries.stream().map(HabitEntryDto::fromEntity).toList();
     }
 

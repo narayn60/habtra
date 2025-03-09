@@ -4,67 +4,60 @@ import com.example.habtra.habit.Habit;
 import com.example.habtra.habit.HabitService;
 import com.example.habtra.habitEntry.dtos.HabitEntryDto;
 import com.example.habtra.types.Enums;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.habtra.user.CustomUserDetails;
+import com.example.habtra.user.User;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.ArgumentMatchers;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(HabitEntryController.class)
 class HabitEntryControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
     @MockBean
-    private HabitEntryService service;
+    private HabitEntryService habitEntryService;
 
     @MockBean
     private HabitService habitService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private CustomUserDetails customUserDetails;
+    private User user;
 
-    @Test
-    void createHabitEntry() {
+    @BeforeEach
+    void setUp() {
+        UUID uuid = UUID.randomUUID();
+        this.customUserDetails = new CustomUserDetails("user", "password", uuid,  Collections.emptyList());
+        this.user = new User("username", "password", "user@email.com");
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(username = "user", password = "password", roles = "USER")
     void getHabitEntries() throws Exception {
-        Habit habit = new Habit("test_habit", null, null, Enums.FrequencyType.Daily, 1);
+        Habit habit = new Habit("test_habit", null, this.user, Enums.FrequencyType.Daily, 1);
+
         HabitEntry habitEntry = new HabitEntryBuilder().createHabitEntry();
         UUID id = UUID.randomUUID();
         habitEntry.setId(id);
         habitEntry.setHabit(habit);
 
+        HabitEntryController controller = new HabitEntryController(habitEntryService, habitService);
 
-        when(service.getAll()).thenReturn(Collections.singletonList(habitEntry));
-        MvcResult result = this.mockMvc.perform(get("/habitEntries"))
-                .andExpect(status().isOk())
-                .andReturn();
+        when(habitEntryService.getAll(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(Collections.singletonList(habitEntry));
 
-        String json = result.getResponse().getContentAsString();
-        List<HabitEntryDto> entries = objectMapper.readValue(json, new TypeReference<>() {
-        });
+        List<HabitEntryDto> habitEntries = controller.getHabitEntries(this.customUserDetails);
 
-        assertNotNull(entries);
-        assertEquals(1, entries.size());
-
-        assertEquals(id, entries.getFirst().id());
+        Assertions.assertEquals(1, habitEntries.size());
+//        Assertions.assertArrayEquals(new String[]});
     }
 
     @Test

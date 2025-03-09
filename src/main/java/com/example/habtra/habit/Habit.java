@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import jdk.jfr.Frequency;
 
 import java.util.Set;
 import java.util.UUID;
@@ -17,7 +16,7 @@ import java.util.UUID;
 @Table(name = "habits")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Habit {
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User user;

@@ -10,7 +10,7 @@ public class HabitEntryService {
 
     private final HabitEntryRepository repository;
 
-    HabitEntryService(HabitEntryRepository repository) {
+    public HabitEntryService(HabitEntryRepository repository) {
         this.repository = repository;
     }
 
@@ -18,8 +18,8 @@ public class HabitEntryService {
         return repository.save(habitEntry);
     }
 
-    public List<HabitEntry> getAll() {
-        return repository.findAll();
+    public List<HabitEntry> getAll(UUID userId) {
+        return repository.findAllHabitEntriesByUserId(userId);
     }
 
     public HabitEntry getById(UUID id) {

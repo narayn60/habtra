@@ -28,6 +28,7 @@ public class HabitEntryController {
             @AuthenticationPrincipal CustomUserDetails user
     ) {
         UUID userId = user.getId();
+        System.out.println(userId);
         List<HabitEntry> habitEntries = service.getAll(userId);
         return habitEntries.stream().map(HabitEntryDto::fromEntity).toList();
     }
@@ -41,9 +42,10 @@ public class HabitEntryController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public HabitEntry createHabitEntry(@RequestBody PostDto postDto) {
+    public HabitEntryDto createHabitEntry(@RequestBody PostDto postDto) {
         HabitEntry entry = toEntity(postDto);
-        return service.create(entry);
+        HabitEntry createdEntry = service.create(entry);
+        return HabitEntryDto.fromEntity(createdEntry);
     }
 
 //    @PutMapping(value = "/habitEntries/{id}")

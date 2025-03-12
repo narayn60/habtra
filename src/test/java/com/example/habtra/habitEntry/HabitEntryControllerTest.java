@@ -3,6 +3,7 @@ package com.example.habtra.habitEntry;
 import com.example.habtra.habit.Habit;
 import com.example.habtra.habit.HabitService;
 import com.example.habtra.habitEntry.dtos.HabitEntryDto;
+import com.example.habtra.habitEntry.dtos.PostDto;
 import com.example.habtra.types.Enums;
 import com.example.habtra.user.CustomUserDetails;
 import com.example.habtra.user.User;
@@ -41,26 +42,93 @@ class HabitEntryControllerTest {
 
     @Test
     @WithMockUser(username = "user", password = "password", roles = "USER")
-    void getHabitEntries() throws Exception {
-        Habit habit = new Habit("test_habit", null, this.user, Enums.FrequencyType.Daily, 1);
-
-        HabitEntry habitEntry = new HabitEntryBuilder().createHabitEntry();
-        UUID id = UUID.randomUUID();
-        habitEntry.setId(id);
-        habitEntry.setHabit(habit);
+    void getHabitEntries() {
+        HabitEntry habitEntry = habitEntry();
 
         HabitEntryController controller = new HabitEntryController(habitEntryService, habitService);
 
-        when(habitEntryService.getAll(ArgumentMatchers.any(UUID.class)))
+        when(habitEntryService.getAll(this.customUserDetails.getId()))
                 .thenReturn(Collections.singletonList(habitEntry));
 
         List<HabitEntryDto> habitEntries = controller.getHabitEntries(this.customUserDetails);
 
         Assertions.assertEquals(1, habitEntries.size());
-//        Assertions.assertArrayEquals(new String[]});
+        // TODO: Improve assertions
     }
 
     @Test
+    @WithMockUser(username = "user", password = "password", roles = "USER")
     void getHabitEntry() {
+        HabitEntryController controller = new HabitEntryController(habitEntryService, habitService);
+
+        HabitEntry habitEntry = habitEntry();
+        UUID entryId = habitEntry.getId();
+
+        // Mocks
+        when(habitEntryService.getById(entryId))
+                .thenReturn(habitEntry);
+
+        // Query the controller
+        HabitEntryDto habitEntryDto = controller.getHabitEntry(entryId);
+
+        // Assertions
+        Assertions.assertEquals(entryId, habitEntryDto.id());
+        Assertions.assertEquals("note", habitEntryDto.note());
+    }
+
+    @Test
+    @WithMockUser(username = "user", password = "password", roles = "USER")
+    void createHabitEntry() {
+        HabitEntryController controller = new HabitEntryController(habitEntryService, habitService);
+        UUID habitId = UUID.randomUUID();
+
+        // Create Habit
+        Habit habit = new Habit("test_habit", null, this.user, Enums.FrequencyType.Daily, 1);
+        habit.setId(habitId);
+
+        // Create Habit Entry
+        UUID habitEntryId = UUID.randomUUID();
+        HabitEntry habitEntry = new HabitEntryBuilder()
+                .setHabit(habit)
+                .setNote("note")
+                .createHabitEntry();
+        habitEntry.setId(habitEntryId);
+
+        PostDto postDto = new PostDto(
+                habitId,
+                habitEntry.getStartTime(),
+                habitEntry.getEndTime(),
+                habitEntry.getNote()
+        );
+
+        // Mocks
+        when(habitService.get(habitId))
+                .thenReturn(habit);
+
+        when(habitEntryService.create(ArgumentMatchers.any(HabitEntry.class)))
+                .thenReturn(habitEntry);
+
+        // Query the controller
+        HabitEntryDto habitEntryDto = controller.createHabitEntry(postDto);
+
+        // Assertions
+        Assertions.assertEquals(habitEntryId, habitEntryDto.id());
+        Assertions.assertEquals("note", habitEntryDto.note());
+    }
+
+    // Helper functions
+    private HabitEntry habitEntry() {
+        // Create Habit
+        Habit habit = new Habit("test_habit", null, this.user, Enums.FrequencyType.Daily, 1);
+
+        // Create Habit Entry
+        UUID id = UUID.randomUUID();
+        HabitEntry habitEntry = new HabitEntryBuilder()
+                .setHabit(habit)
+                .setNote("note")
+                .createHabitEntry();
+        habitEntry.setId(id);
+
+        return habitEntry;
     }
 }

@@ -42,8 +42,8 @@ class HabitEntryControllerTest {
 
     @Test
     @WithMockUser(username = "user", password = "password", roles = "USER")
-    void getHabitEntries() {
-        HabitEntry habitEntry = habitEntry();
+    public void testHandleGetHabitEntriesRequest() {
+        HabitEntry habitEntry = createHabitEntry();
 
         HabitEntryController controller = new HabitEntryController(habitEntryService, habitService);
 
@@ -53,15 +53,14 @@ class HabitEntryControllerTest {
         List<HabitEntryDto> habitEntries = controller.getHabitEntries(this.customUserDetails);
 
         Assertions.assertEquals(1, habitEntries.size());
-        // TODO: Improve assertions
     }
 
     @Test
     @WithMockUser(username = "user", password = "password", roles = "USER")
-    void getHabitEntry() {
+    public void testHandleGetHabitEntryRequest() {
         HabitEntryController controller = new HabitEntryController(habitEntryService, habitService);
 
-        HabitEntry habitEntry = habitEntry();
+        HabitEntry habitEntry = createHabitEntry();
         UUID entryId = habitEntry.getId();
 
         // Mocks
@@ -78,7 +77,7 @@ class HabitEntryControllerTest {
 
     @Test
     @WithMockUser(username = "user", password = "password", roles = "USER")
-    void createHabitEntry() {
+    public void testCreateHabitEntryRequest() {
         HabitEntryController controller = new HabitEntryController(habitEntryService, habitService);
         UUID habitId = UUID.randomUUID();
 
@@ -117,7 +116,7 @@ class HabitEntryControllerTest {
     }
 
     // Helper functions
-    private HabitEntry habitEntry() {
+    private HabitEntry createHabitEntry() {
         // Create Habit
         Habit habit = new Habit("test_habit", null, this.user, Enums.FrequencyType.Daily, 1);
 

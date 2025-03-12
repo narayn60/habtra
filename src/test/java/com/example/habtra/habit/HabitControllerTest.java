@@ -10,6 +10,7 @@ import com.example.habtra.user.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -19,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(HabitController.class)
@@ -48,13 +48,13 @@ class HabitControllerTest {
     @Test
     @WithMockUser(username = "user", password = "password", roles = "USER")
     public void testHandleNewHabitRequest() throws Exception {
-        PostDto habitDto = new PostDto("guitar", Enums.FrequencyType.Daily.toString(), 60);
         HabitController controller = new HabitController(this.habitService, this.userService);
+        PostDto habitDto = new PostDto("guitar", Enums.FrequencyType.Daily.toString(), 60);
 
-        when(userService.getById(any()))
+        when(userService.getById(customUserDetails.getId()))
                 .thenReturn(this.user);
 
-        when(habitService.add(any()))
+        when(habitService.add(ArgumentMatchers.any(Habit.class)))
                 .thenReturn(new Habit("guitar", Collections.emptySet(), this.user, Enums.FrequencyType.Daily, 10 ));
 
         HabitDto habitDto1 = controller.newHabit(this.customUserDetails, habitDto);
@@ -63,19 +63,34 @@ class HabitControllerTest {
     }
 
     @Test
-    public void testHandleAllRequest() throws Exception {
+    @WithMockUser(username = "user", password = "password", roles = "USER")
+    public void testHandleAllRequest() {
+        HabitController controller = new HabitController(this.habitService, this.userService);
+
         List<Habit> habits = Arrays.asList(
                 new Habit("guitar", Collections.emptySet(), this.user, Enums.FrequencyType.Daily, 10),
                 new Habit("gym", Collections.emptySet(), this.user, Enums.FrequencyType.Daily, 10)
         );
 
-        when(habitService.getAllHabits(any()))
+        when(habitService.getAllHabits(this.customUserDetails.getId()))
                 .thenReturn(habits);
-
-        HabitController controller = new HabitController(this.habitService, this.userService);
 
         List<HabitDto> habitDtos = controller.all(this.customUserDetails);
         Assertions.assertEquals(2, habitDtos.size());
         Assertions.assertArrayEquals(new String[]{"guitar", "gym"}, habitDtos.stream().map(HabitDto::name).toArray());;
+    }
+
+    @Test
+    public void testHandleGetRequest() {
+        HabitController controller = new HabitController(this.habitService, this.userService);
+        UUID habitId = UUID.randomUUID();
+        Habit habit = new Habit("guitar", Collections.emptySet(), this.user, Enums.FrequencyType.Daily, 10 );
+
+        when(habitService.get(habitId))
+                .thenReturn(habit);
+
+        HabitDto habitDto = controller.get(habitId);
+        Assertions.assertEquals("guitar", habitDto.name());
+        Assertions.assertEquals(Enums.FrequencyType.Daily, habitDto.frequency());
     }
 }

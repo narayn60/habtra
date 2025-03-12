@@ -35,6 +35,7 @@ public class HabitController {
 
     @GetMapping(value = "/{id}")
     public HabitDto get(@PathVariable UUID id) {
+        // TODO: Limit to ensure we only get if user owns
         return HabitDto.fromEntity(this.habitService.get(id));
     }
 

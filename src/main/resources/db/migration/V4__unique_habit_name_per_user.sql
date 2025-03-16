@@ -1,0 +1,5 @@
+ALTER TABLE habits
+    ADD CONSTRAINT uc_b78cdc5263a1124f7e0d96506 UNIQUE (user_id, name);
+
+ALTER TABLE habits
+    ALTER COLUMN user_id SET NOT NULL;

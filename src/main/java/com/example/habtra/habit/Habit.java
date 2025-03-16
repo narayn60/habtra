@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "habits")
+@Table(name = "habits", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "name"})})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Habit {
     @ManyToOne(optional = false)
@@ -27,6 +27,7 @@ public class Habit {
     private UUID id;
 
     @Column(name = "name")
+    // TODO: Make this unique per user
     private String name;
 
     @OneToMany(mappedBy="habit")

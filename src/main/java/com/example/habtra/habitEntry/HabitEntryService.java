@@ -2,6 +2,7 @@ package com.example.habtra.habitEntry;
 
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,10 @@ public class HabitEntryService {
 
     public List<HabitEntry> getAll(UUID userId) {
         return repository.findAllHabitEntriesByUserId(userId);
+    }
+
+    public List<HabitEntry> getForDay(UUID userId, Timestamp day) {
+        return repository.findAllByDay(userId, day);
     }
 
     public HabitEntry getById(UUID id) {

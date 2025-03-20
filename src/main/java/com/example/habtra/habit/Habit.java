@@ -8,12 +8,20 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.Filters;
+import org.hibernate.annotations.ParamDef;
 
+import java.sql.Timestamp;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @Table(name = "habits", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "name"})})
+@FilterDef(name="dateFilter", parameters ={
+        @ParamDef( name="date", type= Timestamp.class)
+})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Habit {
     @ManyToOne(optional = false)
@@ -32,6 +40,9 @@ public class Habit {
 
     @OneToMany(mappedBy="habit")
     @JsonManagedReference
+    @Filters( {
+            @Filter(name="dateFilter", condition="DATE(start_time)=:date"),
+    } )
     private Set<HabitEntry> entries;
 
     @Column(name = "frequency")

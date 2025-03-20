@@ -17,6 +17,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
@@ -50,7 +51,7 @@ class HabitEntryControllerTest {
         when(habitEntryService.getAll(this.customUserDetails.getId()))
                 .thenReturn(Collections.singletonList(habitEntry));
 
-        List<HabitEntryDto> habitEntries = controller.getHabitEntries(this.customUserDetails);
+        List<HabitEntryDto> habitEntries = controller.getAllHabitEntries(this.customUserDetails, Optional.empty());
 
         Assertions.assertEquals(1, habitEntries.size());
     }

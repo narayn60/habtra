@@ -9,7 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -24,12 +30,27 @@ public class HabitEntryController {
     }
 
     @GetMapping()
-    public List<HabitEntryDto> getHabitEntries(
-            @AuthenticationPrincipal CustomUserDetails user
+    public List<HabitEntryDto> getAllHabitEntries(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam Optional<String> day
     ) {
         UUID userId = user.getId();
-        System.out.println(userId);
-        List<HabitEntry> habitEntries = service.getAll(userId);
+        List<HabitEntry> habitEntries;
+
+        // TODO: Improve this
+        if (day.isPresent()) {
+            try {
+                DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+                Date date = formatter.parse(day.get());
+                Timestamp dayTimeStamp = new Timestamp(date.getTime());
+                habitEntries = service.getForDay(userId, dayTimeStamp);
+            } catch (ParseException e){
+                System.out.println("Exception :" + e);
+                return null;
+            }
+        } else {
+            habitEntries = service.getAll(userId);
+        }
         return habitEntries.stream().map(HabitEntryDto::fromEntity).toList();
     }
 

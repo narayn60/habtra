@@ -15,10 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.mockito.Mockito.when;
 
@@ -75,7 +72,7 @@ class HabitControllerTest {
         when(habitService.getAllHabits(this.customUserDetails.getId()))
                 .thenReturn(habits);
 
-        List<HabitDto> habitDtos = controller.all(this.customUserDetails);
+        List<HabitDto> habitDtos = controller.all(this.customUserDetails, Optional.empty());
         Assertions.assertEquals(2, habitDtos.size());
         Assertions.assertArrayEquals(new String[]{"guitar", "gym"}, habitDtos.stream().map(HabitDto::name).toArray());;
     }
@@ -89,7 +86,7 @@ class HabitControllerTest {
         when(habitService.get(habitId))
                 .thenReturn(habit);
 
-        HabitDto habitDto = controller.get(habitId);
+        HabitDto habitDto = controller.get(habitId, Optional.empty());
         Assertions.assertEquals("guitar", habitDto.name());
         Assertions.assertEquals(Enums.FrequencyType.Daily, habitDto.frequency());
     }
